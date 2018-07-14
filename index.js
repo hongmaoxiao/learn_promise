@@ -7,8 +7,6 @@ else nextTick = function(cb) {
   setTimeout(cb, 0)
 }
 
-var extensions = [];
-
 module.exports = Promise
 
 function Promise(fn) {
@@ -139,10 +137,6 @@ function assimilate(promiseState, thenable) {
     settle(promiseState, false, err)
   }
 }
-
-Promise.use = function(extension) {
-  extensions.push(extension);
-};
 
 function deprecate(method, name, alternative) {
   return function() {

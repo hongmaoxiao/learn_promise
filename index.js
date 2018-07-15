@@ -2,6 +2,7 @@ var nextTick = require('next-tick')
 var isPromise = require('is-promise')
 
 module.exports = Promise
+
 function Promise(fn) {
   if (!(this instanceof Promise)) {
     return new Promise(fn)
@@ -10,10 +11,10 @@ function Promise(fn) {
     throw new TypeError('not a function')
   }
 
-  var state = null,
-    delegating = false,
-    value = null,
-    deferreds = []
+  var state = null
+  var delegating = false
+  var value = null
+  var deferreds = []
 
   this.then = function(onFulfilled, onRejected) {
     return new Promise(function(resolve, reject) {

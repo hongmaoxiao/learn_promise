@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+better-assert@~1.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/better-assert/-/better-assert-1.0.2.tgz#40866b9e1b9e0b55b481894311e68faffaebc522"
+  dependencies:
+    callsite "1.0.0"
+
+callsite@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/callsite/-/callsite-1.0.0.tgz#280398e5d664bd74038b6f0905153e6e8af1bc20"
+
 commander@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-0.6.1.tgz#fa68a14f6a945d54dbbe50d8cdb3320e9e3b1a06"
@@ -10,11 +20,21 @@ commander@2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.3.0.tgz#fd430e889832ec353b9acd1de217c11cb3eef873"
 
+debug@*:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
+  dependencies:
+    ms "2.0.0"
+
 debug@2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.2.0.tgz#f87057e995b1a1f6ae6a4960664137bc56f039da"
   dependencies:
     ms "0.7.1"
+
+diff@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/diff/-/diff-1.0.2.tgz#4ae73f1aee8d6fcf484f1a1ce77ce651d9b7f0c9"
 
 diff@1.4.0:
   version "1.4.0"
@@ -36,6 +56,10 @@ glob@3.2.11:
   dependencies:
     inherits "2"
     minimatch "0.3"
+
+growl@1.7.x:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/growl/-/growl-1.7.0.tgz#de2d66136d002e112ba70f3f10c31cf7c350b2da"
 
 growl@1.9.2:
   version "1.9.2"
@@ -79,11 +103,19 @@ mkdirp@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.3.0.tgz#1bbf5ab1ba827af23575143490426455f481fe1e"
 
+mkdirp@0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.3.3.tgz#595e251c1370c3a68bab2136d0e348b8105adf13"
+
 mkdirp@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   dependencies:
     minimist "0.0.8"
+
+mocha-as-promised@~1.2:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/mocha-as-promised/-/mocha-as-promised-1.2.1.tgz#5a4a27a8072b4d330bada3cf0cf712fdd3089fbd"
 
 mocha@^2.5.3:
   version "2.5.3"
@@ -100,13 +132,33 @@ mocha@^2.5.3:
     supports-color "1.2.0"
     to-iso-string "0.0.2"
 
+mocha@~1.8:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/mocha/-/mocha-1.8.2.tgz#fb6b1d07d98f2eba418546844c3be0731f75e390"
+  dependencies:
+    commander "0.6.1"
+    debug "*"
+    diff "1.0.2"
+    growl "1.7.x"
+    jade "0.26.3"
+    mkdirp "0.3.3"
+    ms "0.3.0"
+
+ms@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-0.3.0.tgz#03edc348d613e66a56486cfdac53bcbe899cbd61"
+
 ms@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.1.tgz#9cd13c03adbff25b65effde7ce864ee952017098"
 
-"promises-aplus-tests@https://github.com/promises-aplus/promises-tests/archive/master.tar.gz":
+ms@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+
+promises-aplus-tests@*:
   version "2.1.2"
-  resolved "https://github.com/promises-aplus/promises-tests/archive/master.tar.gz#0559f45e9368d9b3124d2a71ccd6e97c02c7e9ba"
+  resolved "https://registry.yarnpkg.com/promises-aplus-tests/-/promises-aplus-tests-2.1.2.tgz#76b7c5638968720861969cfbcd8795afd274885c"
   dependencies:
     mocha "^2.5.3"
     sinon "^1.10.3"

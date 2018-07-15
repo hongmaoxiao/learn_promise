@@ -32,12 +32,7 @@ function Promise(fn) {
 
   this.then = function(onFulfilled, onRejected) {
     return new Promise(function(resolve, reject) {
-      handle({
-        onFulfilled: onFulfilled,
-        onRejected: onRejected,
-        resolve: resolve,
-        reject: reject
-      })
+      handle(new Handler(onFulfilled, onRejected, resolve, reject))
     })
   }
 
@@ -48,7 +43,7 @@ function Promise(fn) {
     }
     nextTick(function() {
       var cb = state ? deferred.onFulfilled : deferred.onRejected
-      if (typeof cb !== 'function') {
+      if (cb === null) {
         (state ? deferred.resolve : deferred.reject)
         return
       }
@@ -124,3 +119,9 @@ try {
   reject(e)
 }
 
+function Handler(onFulfilled, onRejected, resolve, reject) {
+  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+  this.resolve = resolve
+  this.reject = reject
+}

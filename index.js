@@ -1,5 +1,18 @@
-var nextTick = require('next-tick')
-var isPromise = require('is-promise')
+var nextTick
+
+if (typeof setImmediate === 'function') {
+  nextTick = function(fn) {
+    setImmediate(fn)
+  }
+} else if (typeof process !== 'undefined' && process && typeof process.nextTick === 'function') {
+  nextTick = function(fn) {
+    process.nextTick(fn)
+  }
+} else {
+  nextTick = function(fn) {
+    setTimeout(fn, 0)
+  }
+}
 
 module.exports = Promise
 
@@ -15,6 +28,7 @@ function Promise(fn) {
   var delegating = false
   var value = null
   var deferreds = []
+  var self = this
 
   this.then = function(onFulfilled, onRejected) {
     return new Promise(function(resolve, reject) {
@@ -60,14 +74,24 @@ function Promise(fn) {
     if (state !== null) {
       return
     }
-    if (isPromise(newValue)) {
-      delegating = true
-      newValue.then(resolve, reject)
-      return
+    try {
+      if (newValue === self) {
+        throw new TypeError('A promise cannot be resolved with itself.')
+      }
+      if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
+        var then = newValue.then
+        if (typeof then === 'function') {
+          delegating = true
+          then.call(newValue, resolve_, reject_)
+          return
+        }
+      }
+      state = true
+      value = newValue
+      finale()
+    } catch (e) {
+      reject_(e)
     }
-    state = true
-    value = newValue
-    finale()
   }
 
   function reject(newValue) {

@@ -1,3 +1,5 @@
+'use strict'
+
 var nextTick = require('./lib/next-tick')
 
 if (typeof setImmediate === 'function') {

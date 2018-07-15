@@ -1,7 +1,8 @@
-var nextTick = require('next-tick'),
-  isPromise = require('is-promise')
+var nextTick = require('next-tick')
+var isPromise = require('is-promise')
 
-module.exports = function Promise(fn) {
+module.exports = Promise
+function Promise(fn) {
   if (!(this instanceof Promise)) {
     return new Promise(fn)
   }
@@ -26,18 +27,21 @@ module.exports = function Promise(fn) {
 
   function handle(deferred) {
     if (state === null) {
-      return void deferreds.push(deferred)
+      deferreds.push(deferred)
+      return
     }
     nextTick(function() {
       var cb = state ? deferred.onFulfilled : deferred.onRejected
       if (typeof cb !== 'function') {
-        return void(state ? deferred.resolve : deferred.reject)
+        (state ? deferred.resolve : deferred.reject)
+        return
       }
       var ret
       try {
         ret = cb(value)
       } catch (e) {
-        return void deferred.reject(e)
+        deferred.reject(e)
+        return
       }
       deferred.resolve(ret)
     })
@@ -48,7 +52,8 @@ module.exports = function Promise(fn) {
       return
     }
     if (isPromise(newValue)) {
-      return void newValue.then(resolve, reject)
+      newValue.then(resolve, reject)
+      return
     }
     state = true
     value = newValue

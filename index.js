@@ -11,8 +11,8 @@ function Promise(fn) {
   }
 
   var state = null,
+    delegating = false,
     value = null,
-    resolved = false,
     deferreds = []
 
   this.then = function(onFulfilled, onRejected) {
@@ -49,10 +49,18 @@ function Promise(fn) {
   }
 
   function resolve(newValue) {
+    if (delegating) {
+      return
+    }
+    resolve_(newValue)
+  }
+
+  function resolve_(newValue) {
     if (state !== null) {
       return
     }
     if (isPromise(newValue)) {
+      delegating = true
       newValue.then(resolve, reject)
       return
     }
@@ -62,6 +70,13 @@ function Promise(fn) {
   }
 
   function reject(newValue) {
+    if (delegating) {
+      return
+    }
+    reject_(newValue)
+  }
+
+  function reject_(newValue) {
     if (state !== null) {
       return
     }
@@ -78,19 +93,9 @@ function finale() {
   deferreds = null;
 }
 
-function ifUnResolved(fn) {
-  return function (value) {
-    if (resolved) {
-      return
-    }
-    resolved = true
-    return fn(value)
-  }
-}
-
 try {
-  fn(ifUnResolved(resolve), ifUnResolved(reject))
+  fn(resolve, reject)
 } catch (e) {
-  ifUnResolved(reject)(e)
+  reject(e)
 }
 

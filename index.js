@@ -12,6 +12,7 @@ function Promise(fn) {
 
   var state = null,
     value = null,
+    resolved = false,
     deferreds = []
 
   this.then = function(onFulfilled, onRejected) {
@@ -77,9 +78,19 @@ function finale() {
   deferreds = null;
 }
 
+function ifUnResolved(fn) {
+  return function (value) {
+    if (resolved) {
+      return
+    }
+    resolved = true
+    return fn(value)
+  }
+}
+
 try {
-  fn(resolve, reject)
+  fn(ifUnResolved(resolve), ifUnResolved(reject))
 } catch (e) {
-  reject(e)
+  ifUnResolved(reject)(e)
 }
 

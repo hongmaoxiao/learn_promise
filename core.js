@@ -1,20 +1,6 @@
 'use strict'
 
-var nextTick = require('./lib/next-tick')
-
-if (typeof setImmediate === 'function') {
-  nextTick = function(fn) {
-    setImmediate(fn)
-  }
-} else if (typeof process !== 'undefined' && process && typeof process.nextTick === 'function') {
-  nextTick = function(fn) {
-    process.nextTick(fn)
-  }
-} else {
-  nextTick = function(fn) {
-    setTimeout(fn, 0)
-  }
-}
+var asap = require('asap')
 
 module.exports = Promise
 
@@ -27,7 +13,6 @@ function Promise(fn) {
   }
 
   var state = null
-  var delegating = false
   var value = null
   var deferreds = []
   var self = this
@@ -43,10 +28,10 @@ function Promise(fn) {
       deferreds.push(deferred)
       return
     }
-    nextTick(function() {
+    asap(function() {
       var cb = state ? deferred.onFulfilled : deferred.onRejected
       if (cb === null) {
-        (state ? deferred.resolve : deferred.reject)
+        (state ? deferred.resolve : deferred.reject)(value)
         return
       }
       var ret
@@ -61,16 +46,6 @@ function Promise(fn) {
   }
 
   function resolve(newValue) {
-    if (delegating) {
-      return
-    }
-    resolve_(newValue)
-  }
-
-  function resolve_(newValue) {
-    if (state !== null) {
-      return
-    }
     try {
       if (newValue === self) {
         throw new TypeError('A promise cannot be resolved with itself.')
@@ -78,10 +53,7 @@ function Promise(fn) {
       if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
         var then = newValue.then
         if (typeof then === 'function') {
-          delegating = true
-          new Promise(function(resolve, reject) {
-            then.call(newValue, resolve, reject)
-          }).then(resolve_, reject_)
+          doResolve(then.bind(newValue), resolve, reject)
           return
         }
       }
@@ -89,38 +61,25 @@ function Promise(fn) {
       value = newValue
       finale()
     } catch (e) {
-      reject_(e)
+      reject(e)
     }
   }
 
   function reject(newValue) {
-    if (delegating) {
-      return
-    }
-    reject_(newValue)
-  }
-
-  function reject_(newValue) {
-    if (state !== null) {
-      return
-    }
     state = false
     value = newValue
     finale()
   }
-}
 
-function finale() {
-  for (var i = 0, len = deferreds.length; i < len; i++) {
-    handle(deferreds[i])
+
+  function finale() {
+    for (var i = 0, len = deferreds.length; i < len; i++) {
+      handle(deferreds[i])
+    }
+    deferreds = null;
   }
-  deferreds = null;
-}
 
-try {
-  fn(resolve, reject)
-} catch (e) {
-  reject(e)
+  doResolve(fn, resolve, reject)
 }
 
 function Handler(onFulfilled, onRejected, resolve, reject) {
@@ -128,4 +87,36 @@ function Handler(onFulfilled, onRejected, resolve, reject) {
   this.onRejected = typeof onRejected === 'function' ? onRejected : null;
   this.resolve = resolve
   this.reject = reject
+}
+
+/**
+ * Take a potentially misbehaving resolver function and make sure
+ * onFulfilled and onRejected are only called once.
+ *
+ * Makes no guarantees about asynchrony.
+ */
+
+function doResolve(fn, onFulfilled, onRejected) {
+  var done = false;
+  try {
+    fn(function(value) {
+      if (done) {
+        return
+      }
+      done = true
+      onFulfilled(value)
+    }, function(reason) {
+      if (done) {
+        return
+      }
+      done = true
+      onRejected(reason)
+    })
+  } catch (ex) {
+    if (done) {
+      return
+    }
+    done = true
+    onRejected(ex)
+  }
 }

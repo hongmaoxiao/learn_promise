@@ -3,7 +3,7 @@
 //This file contains then/promise specific extensions to the core promise API
 
 var Promise = require('./core')
-var nextTick = require('./lib/next-tick')
+var asap = require('asap')
 
 module.exports = Promise
 
@@ -45,7 +45,7 @@ Promise.nodeify = function (fn) {
           reject(ex)
         })
       } else {
-        nextTick(function() {
+        asap(function() {
           callback(ex)
         })
       }
@@ -91,7 +91,7 @@ Promise.all = function () {
 Promise.prototype.done = function (onFulfilled, onRejected) {
   var self = arguments.length ? this.then.apply(this, arguments) : this
   self.then(null, function(err) {
-    nextTick(function() {
+    asap(function() {
       throw err
     })
   })
@@ -102,10 +102,10 @@ Promise.prototype.nodeify = function (callback) {
   }
 
   this.then(function(value) {
-    nextTick(function() {
+    asap(function() {
       callback(null, value)
     }, function(err) {
-      nextTick(function() {
+      asap(function() {
         callback(err)
       })
     })

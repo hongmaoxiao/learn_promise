@@ -35,7 +35,7 @@ var UNDEFINED = new ValuePromise(undefined)
 var ZERO = new ValuePromise(0)
 var EMPTYSTRING = new ValuePromise('')
 
-Promise.from = function (value) {
+Promise.from = Promise.cast = function (value) {
   if (value instanceof Promise) {
     return value
   }
@@ -184,12 +184,4 @@ Promise.cast = function (value) {
     return value
   }
   return Promise.resolve(value)
-}
-
-Promise.race = function (values) {
-  return new Promise(function(resolve, reject){
-    values.map(function(value) {
-      Promise.cast(value).then(resolve, reject);
-    })
-  })
 }

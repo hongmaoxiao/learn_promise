@@ -52,10 +52,12 @@ describe('extensions', function () {
             done()
           })
         assert(promise instanceof Promise)
+        assert(Promise.from(sentinel) instanceof Promise)
+        assert(Promise.from(sentinel).constructor === Promise)
       })
     })
   })
-  describe('Promise.denodeify(fn)', function () {
+  describe('Promise.denodeify(fn, [argumentCount])', function () {
     it('returns a function that uses promises instead of callbacks', function (done) {
       function wrap(val, key, callback) {
         return callback(null, {val: val, key: key})
@@ -76,6 +78,18 @@ describe('extensions', function () {
       pfail(promise, 'foo')
         .then(null, function (err) {
           assert(err === sentinel)
+          done()
+        })
+    })
+    it('with an argumentCount it ignores extra arguments', function (done) {
+      function wrap(val, key, callback) {
+        return callback(null, {val: val, key: key})
+      }
+      var pwrap = Promise.denodeify(wrap, 2)
+      pwrap(sentinel, 'foo', 'wtf')
+        .then(function (wrapper) {
+          assert(wrapper.val === sentinel)
+          assert(wrapper.key === 'foo')
           done()
         })
     })

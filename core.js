@@ -1,12 +1,12 @@
-'use strict'
+'use strict';
 
 var asap = require('asap')
 
 module.exports = Promise
 
 function Promise(fn) {
-  if (!(this instanceof Promise)) {
-    return new Promise(fn)
+  if (typeof this !== 'object') {
+    throw new TypeError('Promise must be constructed via new')
   }
   if (typeof fn !== 'function') {
     throw new TypeError('not a function')

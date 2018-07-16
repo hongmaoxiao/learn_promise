@@ -91,7 +91,7 @@ Promise.nodeify = function (fn) {
     try {
       return fn.apply(this, arguments).nodeify(callback)
     } catch (ex) {
-      if (callback === null typeof callback == 'undefined') {
+      if (callback === null || typeof callback == 'undefined') {
         return new Promise(function (resolve, reject) {
           reject(ex)
         })

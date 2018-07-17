@@ -10,12 +10,12 @@ module.exports = Promise
 /* Static Functions */
 
 function ValuePromise(value) {
-  this.then = function (onFulfilled) {
+  this.then = function(onFulfilled) {
     if (typeof onFulfilled !== 'function') {
       return this;
     }
     return new Promise(function(resolve, reject) {
-      asap(function(){
+      asap(function() {
         try {
           resolve(onFulfilled(value))
         } catch (ex) {
@@ -35,7 +35,7 @@ var UNDEFINED = new ValuePromise(undefined)
 var ZERO = new ValuePromise(0)
 var EMPTYSTRING = new ValuePromise('')
 
-Promise.from = Promise.cast = function (value) {
+Promise.from = Promise.cast = function(value) {
   if (value instanceof Promise) {
     return value
   }
@@ -49,12 +49,12 @@ Promise.from = Promise.cast = function (value) {
 
   if (typeof value === 'object' || typeof value === 'function') {
     try {
-      var value = value.then
+      var then = value.then
       if (typeof then === 'function') {
         return new Promise(then.bind(value))
       }
     } catch (ex) {
-      return new Promise(function(resolve, reject){
+      return new Promise(function(resolve, reject) {
         reject(ex)
       })
     }
@@ -63,16 +63,16 @@ Promise.from = Promise.cast = function (value) {
   return new ValuePromise(value)
 }
 
-Promise.denodeify = function (fn, argumentCount) {
+Promise.denodeify = function(fn, argumentCount) {
   argumentCount = argumentCount || Infinity
-  return function () {
+  return function() {
     var self = this
     var args = Array.prototype.slice.call(arguments)
     return new Promise(function(resolve, reject) {
-      while(args.length && args.length > argumentCount) {
+      while (args.length && args.length > argumentCount) {
         args.pop()
       }
-      args.push(function (err, res) {
+      args.push(function(err, res) {
         if (err) {
           reject(err)
         } else {
@@ -84,15 +84,15 @@ Promise.denodeify = function (fn, argumentCount) {
   }
 }
 
-Promise.nodeify = function (fn) {
-  return function () {
+Promise.nodeify = function(fn) {
+  return function() {
     var args = Array.prototype.slice.call(arguments)
     var callback = typeof args[args.length - 1] === 'function' ? args.pop() : null
     try {
       return fn.apply(this, arguments).nodeify(callback)
     } catch (ex) {
       if (callback === null || typeof callback == 'undefined') {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
           reject(ex)
         })
       } else {
@@ -104,7 +104,7 @@ Promise.nodeify = function (fn) {
   }
 }
 
-Promise.all = function () {
+Promise.all = function() {
   var args = Array.prototype.slice.call(arguments.length === 1 && Array.isArray(arguments[0]) ? arguments[0] : arguments)
 
   return new Promise(function(resolve, reject) {
@@ -112,6 +112,7 @@ Promise.all = function () {
       return resolve([])
     }
     var remaining = args.length
+
     function res(i, val) {
       try {
         if (val && (typeof val === 'object' || typeof val === 'function')) {
@@ -139,7 +140,7 @@ Promise.all = function () {
 
 /* Prototype Methods */
 
-Promise.prototype.done = function (onFulfilled, onRejected) {
+Promise.prototype.done = function(onFulfilled, onRejected) {
   var self = arguments.length ? this.then.apply(this, arguments) : this
   self.then(null, function(err) {
     asap(function() {
@@ -147,7 +148,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
     })
   })
 }
-Promise.prototype.nodeify = function (callback) {
+Promise.prototype.nodeify = function(callback) {
   if (callback === null || typeof callback == 'undefined') {
     return this
   }
@@ -155,33 +156,34 @@ Promise.prototype.nodeify = function (callback) {
   this.then(function(value) {
     asap(function() {
       callback(null, value)
-    }, function(err) {
-      asap(function() {
-        callback(err)
-      })
+    })
+  }, function(err) {
+    asap(function() {
+      callback(err)
     })
   })
 }
 
-Promise.prototype.catch = function (onRejected) {
+Promise.prototype.catch = function(onRejected) {
   return this.then(null, onRejected);
 }
 
-Promise.resolve = function (value) {
-  return new Promise(function(resolve){
+Promise.resolve = function(value) {
+  return new Promise(function(resolve) {
     resolve(value)
   })
 }
 
-Promise.reject = function (value) {
-  return new Promise(function(resolve, reject){
+Promise.reject = function(value) {
+  return new Promise(function(resolve, reject) {
     reject(value)
   })
 }
 
-Promise.cast = function (value) {
-  if (value instanceof Promise) {
-    return value
-  }
-  return Promise.resolve(value)
+Promise.race = function(values) {
+  return new Promise(function(resolve, reject) {
+    values.map(function(value) {
+      Promise.cast(value).then(resolve, reject);
+    })
+  });
 }
